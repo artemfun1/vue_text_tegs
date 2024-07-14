@@ -1,6 +1,6 @@
 <script setup>
 import clsx from "clsx";
-import { nextTick, ref } from "vue";
+import { nextTick, onMounted, onUpdated, ref } from "vue";
 import getFinalData from "../utils/getFinalData";
 
 const props = defineProps({
@@ -15,7 +15,7 @@ const onceTime = ref(false);
 
 function forceRender() {
 	render.value = false;
-console.log(1)
+	console.log(1);
 	nextTick(() => {
 		render.value = true;
 	});
@@ -33,16 +33,13 @@ function funcOne() {
 	}, 1000);
 }
 
-
-const vElUpdate = el =>{
-	window.addEventListener("resize",funcOne)
-}
+const elemArray = [];
 
 const vEscape = el => {
-	
+	elemArray.push(el);
 
 	window.addEventListener("resize", () => {
-		
+		funcOne();
 		if (
 			el.getBoundingClientRect().left < 0 ||
 			document.body.getBoundingClientRect().width -
@@ -54,7 +51,6 @@ const vEscape = el => {
 	});
 
 	window.addEventListener("load", () => {
-		
 		if (
 			el.getBoundingClientRect().left < 0 ||
 			document.body.getBoundingClientRect().width -
@@ -64,37 +60,57 @@ const vEscape = el => {
 			el.hidden = true;
 		}
 	});
-	
-	
 };
+
+onMounted(() => {
+	elemArray.forEach(el => {
+		if (
+			el.getBoundingClientRect().left < 0 ||
+			document.body.getBoundingClientRect().width -
+				el.getBoundingClientRect().right <
+				0
+		) {
+			el.hidden = true;
+		}
+	});
+});
+onUpdated(() => {
+	elemArray.forEach(el => {
+		if (
+			el.getBoundingClientRect().left < 0 ||
+			document.body.getBoundingClientRect().width -
+				el.getBoundingClientRect().right <
+				0
+		) {
+			el.hidden = true;
+		}
+	});
+});
 </script>
 
 <template>
-	<div 
-	v-if="render"
-	v-el-update
-	>
+	<div v-if="render">
 		<v-card
-		color="#adadad"
-		:class="clsx('left', 'text-tags_item', toggleClass && 'between')"
-		v-for="item in finalData"
-		:key="item.text"
-	>
-		<div
-			v-escape
-			v-if="item.icon === 0"
-			v-for="(elem, i) in item.text"
-			:key="i"
+			color="#adadad"
+			:class="clsx('left', 'text-tags_item', toggleClass && 'between')"
+			v-for="item in finalData"
+			:key="item.text"
 		>
-			<p>{{ elem }}</p>
-		</div>
+			<div
+				v-escape
+				v-if="item.icon === 0"
+				v-for="(elem, i) in item.text"
+				:key="i"
+			>
+				<p>{{ elem }}</p>
+			</div>
 
-		<div v-escape v-else v-for="(elem, i) in item.text" :key="i + elem">
-			<v-icon v-if="elem === item.text[1]" :icon="elem" />
-			<p v-else>{{ elem }}</p>
-		</div>
-	</v-card></div>
-	
+			<div v-escape v-else v-for="(elem, i) in item.text" :key="i + elem">
+				<v-icon v-if="elem === item.text[1]" :icon="elem" />
+				<p v-else>{{ elem }}</p>
+			</div>
+		</v-card>
+	</div>
 </template>
 
 <style scoped lang="scss">
