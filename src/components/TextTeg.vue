@@ -50,16 +50,6 @@ const vEscape = el => {
 		}
 	});
 
-	window.addEventListener("load", () => {
-		if (
-			el.getBoundingClientRect().left < 0 ||
-			document.body.getBoundingClientRect().width -
-				el.getBoundingClientRect().right <
-				0
-		) {
-			el.hidden = true;
-		}
-	});
 };
 
 onMounted(() => {
